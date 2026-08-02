@@ -1,8 +1,8 @@
-# 🛡️ SentinelX — Autonomous Real-Time AI SOC & Threat Investigation Engine
+# 🛡️ Veritas — Autonomous Real-Time AI SOC & Threat Investigation Engine
 
 <div align="center">
 
-![SentinelX Badge](https://img.shields.io/badge/SentinelX-Next--Gen%20SOC-00F2FE?style=for-the-badge&logo=shield&logoColor=black)
+![Veritas Badge](https://img.shields.io/badge/Veritas-Next--Gen%20SOC-00F2FE?style=for-the-badge&logo=shield&logoColor=black)
 ![Next.js](https://img.shields.io/badge/Next.js%2016-Black?style=for-the-badge&logo=next.js&logoColor=white)
 ![React](https://img.shields.io/badge/React%2019-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
@@ -17,11 +17,11 @@
 
 ## 🌟 Overview & Core Architecture
 
-**SentinelX** transforms how security analysts detect, validate, and respond to cyber threats. By pairing a high-frequency **In-Memory SOC Telemetry Engine** with an autonomous **Multi-Agent Debate Pipeline**, SentinelX eliminates alert fatigue, removes false positives, and delivers instant, structured incident reports.
+**Veritas** transforms how security analysts detect, validate, and respond to cyber threats. By pairing a high-frequency **In-Memory SOC Telemetry Engine** with an autonomous **Multi-Agent Debate Pipeline**, Veritas eliminates alert fatigue, removes false positives, and delivers instant, structured incident reports.
 
 ```
        +-----------------------------------------------------------------------+
-       |                     SENTINELX SOC TELEMETRY PIPELINE                  |
+       |                      VERITAS SOC TELEMETRY PIPELINE                   |
        +-----------------------------------------------------------------------+
                                            │
           ┌────────────────────────────────┴────────────────────────────────┐
@@ -62,7 +62,7 @@
 ---
 
 ### 2. 🤖 Autonomous Multi-Agent AI Debate Pipeline
-SentinelX replaces single-prompt LLM guesses with a rigorous 3-agent adversarial debate:
+Veritas replaces single-prompt LLM guesses with a rigorous 3-agent adversarial debate:
 1. **Investigator (`INVESTIGATOR`)**: Gathers active observables, extracts IP addresses, identifies target ports/services, and correlates MITRE ATT&CK tactics.
 2. **Skeptic (`SKEPTIC`)**: Evaluates false-positive likelihood, checks ASN reputation risk scores, and challenges unverified assumptions.
 3. **Consensus (`CONSENSUS`)**: Synthesizes verified findings into a definitive **Executive Investigation Report** complete with automated containment checklists.
@@ -145,7 +145,7 @@ npm install
 npm run dev
 ```
 
-### Step 3: Open SentinelX in Your Browser
+### Step 3: Open Veritas in Your Browser
 Navigate to **[http://localhost:3000](http://localhost:3000)**:
 1. **Explore the Investigation Workspace**: View the live alert cards, MITRE ATT&CK mapping, and the **24-Hour Alert Intensity Bar Chart**.
 2. **Test Follow-Up Questions**: In the **Investigation Log** on the left, click **`🔍 IP 185.220.101.5 Report`** to watch the multi-agent debate generate the structured incident report.

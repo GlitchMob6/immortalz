@@ -25,7 +25,7 @@ export default function TopBar({ activeTab, onTabChange, onCommandPalette }: Top
             <Shield className="w-4 h-4 text-white" />
           </div>
           <span className="text-[15px] font-semibold text-text-primary tracking-tight">
-            SentinelX
+            Veritas
           </span>
         </div>
 

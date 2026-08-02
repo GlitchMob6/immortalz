@@ -19,13 +19,13 @@ async def lifespan(app: FastAPI):
     """Startup: seed logs + start background streamer. Shutdown: stop streamer."""
     store.seed(count=2000, days_back=2)
     streamer_task = asyncio.create_task(store.start_streaming(interval_range=(1.0, 3.0)))
-    print("[SentinelX] Backend ready — logs streaming")
+    print("[Veritas] Backend ready — logs streaming")
     yield
     store.stop_streaming()
     streamer_task.cancel()
 
 
-app = FastAPI(title="SentinelX AI Backend", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Veritas AI Backend", version="1.0.0", lifespan=lifespan)
 
 # CORS middleware for Next.js integration
 app.add_middleware(
