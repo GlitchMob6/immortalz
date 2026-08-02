@@ -3,10 +3,13 @@
 import { getGreeting } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
-import { formatNumber } from '@/lib/utils';
-import { stats } from '@/data/mockData';
+import { useStats } from '@/lib/liveData';
 
 export default function Greeting() {
+  const stats = useStats();
+
+  const eventsProcessed = stats?.events_processed ?? 0;
+
   return (
     <motion.div
       variants={staggerContainer}
@@ -25,7 +28,7 @@ export default function Greeting() {
         className="text-[17px] text-text-secondary font-normal"
       >
         <span className="text-text-primary font-medium">
-          {formatNumber(stats.eventsProcessed)}
+          {eventsProcessed.toLocaleString()}
         </span>{' '}
         security events processed today.
       </motion.p>

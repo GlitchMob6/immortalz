@@ -2,8 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
-import { formatNumber } from '@/lib/utils';
-import { stats } from '@/data/mockData';
+import { useStats } from '@/lib/liveData';
 import { AlertTriangle, AlertCircle, Search, CheckCircle } from 'lucide-react';
 
 interface StatCardProps {
@@ -35,6 +34,8 @@ function StatCard({ value, label, icon, accentColor }: StatCardProps) {
 }
 
 export default function StatsGrid() {
+  const stats = useStats();
+
   return (
     <motion.div
       variants={staggerContainer}
@@ -43,25 +44,25 @@ export default function StatsGrid() {
       className="grid grid-cols-4 gap-4 max-w-3xl mx-auto mb-10"
     >
       <StatCard
-        value={stats.criticalIncidents}
+        value={stats?.critical_incidents ?? 0}
         label="Critical Incidents"
         icon={<AlertTriangle className="w-4.5 h-4.5" style={{ color: 'var(--critical-text)' }} />}
         accentColor="var(--critical-text)"
       />
       <StatCard
-        value={stats.mediumAlerts}
+        value={stats?.medium_alerts ?? 0}
         label="Medium Alerts"
         icon={<AlertCircle className="w-4.5 h-4.5" style={{ color: 'var(--medium-text)' }} />}
         accentColor="var(--medium-text)"
       />
       <StatCard
-        value={stats.activeInvestigations}
+        value={stats?.active_investigations ?? 0}
         label="Active Investigations"
         icon={<Search className="w-4.5 h-4.5" style={{ color: 'var(--active-text)' }} />}
         accentColor="var(--active-text)"
       />
       <StatCard
-        value={`${stats.resolvedRate}%`}
+        value={`${stats?.resolved_rate ?? 0}%`}
         label="Resolved Rate"
         icon={<CheckCircle className="w-4.5 h-4.5" style={{ color: 'var(--low-text)' }} />}
         accentColor="var(--low-text)"

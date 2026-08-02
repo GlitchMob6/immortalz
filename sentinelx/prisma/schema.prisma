@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Investigation {
+  id         String   @id @default(uuid())
+  query      String
+  status     String   @default("PLANNING") // 'PLANNING', 'DEBATING', 'CONSENSUS', 'COMPLETE'
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  agentStates AgentState[]
+  evidences   Evidence[]
+  reports     Report[]
+}
+
+model AgentState {
+  id              String        @id @default(uuid())
+  investigationId String
+  investigation   Investigation @relation(fields: [investigationId], references: [id], onDelete: Cascade)
+  agentRole       String        // 'INVESTIGATOR', 'SKEPTIC', 'RESEARCHER', 'CONSENSUS'
+  thoughtProcess  String
+  createdAt       DateTime      @default(now())
+}
+
+model Evidence {
+  id              String        @id @default(uuid())
+  investigationId String
+  investigation   Investigation @relation(fields: [investigationId], references: [id], onDelete: Cascade)
+  sourceIndex     String
+  rawDsl          String?       // Stored as JSON string
+  results         String?       // Stored as JSON string
+  relevanceScore  Float?
+  createdAt       DateTime      @default(now())
+}
+
+model Report {
+  id                    String        @id @default(uuid())
+  investigationId       String
+  investigation         Investigation @relation(fields: [investigationId], references: [id], onDelete: Cascade)
+  confidenceScore       Float?
+  supportingEvidence    String?       // Stored as JSON string
+  contradictingEvidence String?       // Stored as JSON string
+  mitreTactics          String?       // Stored as JSON string
+  rootCause             String?
+  mitigation            String?
+  createdAt             DateTime      @default(now())
+}

@@ -2,12 +2,35 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeInUp, staggerContainerSlow } from '@/lib/animations';
-import { attackTimeline, type TimelineEventData } from '@/data/mockData';
+import { useRecentAttacks, type LogEntry } from '@/lib/liveData';
 import Badge from '@/components/shared/Badge';
 import { useState } from 'react';
 import { ChevronDown, Database } from 'lucide-react';
 
-function TimelineEvent({ event, index }: { event: TimelineEventData; index: number }) {
+interface TimelineEventData {
+  time: string;
+  title: string;
+  description: string;
+  severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
+  details?: string;
+  source?: string;
+}
+
+function formatTimeOnly(ts: string): string {
+  try {
+    const d = new Date(ts);
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  } catch {
+    return '09:20:00';
+  }
+}
+
+function severityVariant(sev: string): 'critical' | 'high' | 'medium' | 'low' {
+  if (sev === 'critical' || sev === 'high' || sev === 'medium' || sev === 'low') return sev;
+  return 'low';
+}
+
+function TimelineEvent({ event, index, isLast }: { event: TimelineEventData; index: number; isLast: boolean }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -28,7 +51,7 @@ function TimelineEvent({ event, index }: { event: TimelineEventData; index: numb
               : 'border-info-text bg-info-bg'
           }`}
         />
-        {index < attackTimeline.length - 1 && (
+        {!isLast && (
           <div className="w-[2px] flex-1 bg-border-default min-h-[24px]" />
         )}
       </div>
@@ -92,6 +115,17 @@ function TimelineEvent({ event, index }: { event: TimelineEventData; index: numb
 }
 
 export default function AttackTimeline() {
+  const attacks = useRecentAttacks(6);
+
+  const events: TimelineEventData[] = attacks.map((log) => ({
+    time: formatTimeOnly(log['@timestamp']),
+    title: `${log.event_type.replace(/_/g, ' ').toUpperCase()} — ${log.source_ip}`,
+    description: log.message,
+    severity: severityVariant(log.severity),
+    details: `Payload: ${log.payload || 'N/A'} | Destination: ${log.dest_ip}:${log.port} | User: ${log.user} | MITRE: ${log.mitre_tactic || 'TA0001 Initial Access'}`,
+    source: 'SOC In-Memory Log Streamer',
+  }));
+
   return (
     <motion.div
       variants={staggerContainerSlow}
@@ -99,11 +133,23 @@ export default function AttackTimeline() {
       animate="visible"
       className="bg-surface border border-border-default rounded-xl p-6 shadow-[var(--shadow-1)] mb-5"
     >
-      <h3 className="text-caption text-text-tertiary mb-5">ATTACK TIMELINE</h3>
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="text-caption text-text-tertiary">LIVE ATTACK TIMELINE</h3>
+        <span className="text-[11px] text-low-text flex items-center gap-1.5 font-medium">
+          <span className="w-1.5 h-1.5 rounded-full bg-low-text animate-pulse-dot" />
+          Real-Time Telemetry
+        </span>
+      </div>
       <div className="ml-1">
-        {attackTimeline.map((event, i) => (
-          <TimelineEvent key={event.time} event={event} index={i} />
-        ))}
+        {events.length === 0 ? (
+          <div className="py-6 text-center text-small text-text-tertiary">
+            Waiting for live telemetry stream…
+          </div>
+        ) : (
+          events.map((event, i) => (
+            <TimelineEvent key={`${event.time}-${i}`} event={event} index={i} isLast={i === events.length - 1} />
+          ))
+        )}
       </div>
     </motion.div>
   );

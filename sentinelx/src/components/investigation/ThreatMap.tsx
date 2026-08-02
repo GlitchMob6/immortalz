@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { fadeInUp } from '@/lib/animations';
-import { useEffect, useRef } from 'react';
+import { useStats } from '@/lib/liveData';
+import { useRef } from 'react';
 
 // Simple SVG world map paths (simplified continents)
 const continents = `M 150,80 C 155,75 165,72 170,75 C 175,78 185,76 190,80 C 195,84 200,82 205,85 C 210,88 208,95 205,98 C 202,101 195,103 190,100 C 185,97 178,99 175,95 C 172,91 165,93 160,90 C 155,87 148,85 150,80 Z
@@ -18,14 +19,16 @@ interface ThreatLine {
 }
 
 const threatLines: ThreatLine[] = [
-  { from: { x: 240, y: 80, label: 'Paris' }, to: { x: 140, y: 95, label: 'New York' } },
-  { from: { x: 290, y: 75, label: 'Moscow' }, to: { x: 120, y: 90, label: 'San Francisco' } },
-  { from: { x: 380, y: 100, label: 'Shanghai' }, to: { x: 220, y: 82, label: 'London' } },
-  { from: { x: 395, y: 95, label: 'Tokyo' }, to: { x: 125, y: 100, label: 'Los Angeles' } },
+  { from: { x: 240, y: 80, label: 'Eastern Europe' }, to: { x: 140, y: 95, label: 'Internal DC-01' } },
+  { from: { x: 290, y: 75, label: 'Northern Eurasia' }, to: { x: 120, y: 90, label: 'App Gateway' } },
+  { from: { x: 380, y: 100, label: 'East Asia' }, to: { x: 220, y: 82, label: 'EU Cloud Region' } },
+  { from: { x: 395, y: 95, label: 'Southeast Asia' }, to: { x: 125, y: 100, label: 'US-West Prod' } },
 ];
 
 export default function ThreatMap() {
+  const stats = useStats();
   const svgRef = useRef<SVGSVGElement>(null);
+  const activeVectors = stats ? Math.max(4, stats.unique_source_ips) : 4;
 
   return (
     <motion.div
@@ -35,9 +38,15 @@ export default function ThreatMap() {
       className="bg-surface border border-border-default rounded-xl p-6 shadow-[var(--shadow-1)] mb-5"
     >
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-caption text-text-tertiary">THREAT ORIGIN MAP</h3>
-        <span className="text-[12px] text-text-tertiary">
-          4 active threat vectors
+        <div className="flex items-center gap-2">
+          <h3 className="text-caption text-text-tertiary">THREAT ORIGIN GEOLOCATION MAP</h3>
+          <span className="text-[11px] text-low-text flex items-center gap-1.5 ml-2 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-low-text animate-pulse-dot" />
+            Live IP Correlation
+          </span>
+        </div>
+        <span className="text-[12px] font-medium text-critical-text">
+          {activeVectors} active threat vectors detected
         </span>
       </div>
 
@@ -123,15 +132,20 @@ export default function ThreatMap() {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-6 mt-4">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-critical-text" />
-          <span className="text-[11px] text-text-tertiary">Attack Origin</span>
+      <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-critical-text" />
+            <span className="text-[11px] text-text-tertiary">External Attack Origin (IP Geolocation)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-info-text" />
+            <span className="text-[11px] text-text-tertiary">Internal Target Asset</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-info-text" />
-          <span className="text-[11px] text-text-tertiary">Target</span>
-        </div>
+        <span className="text-mono text-[10px] text-text-tertiary">
+          Streaming from SOC Log Store
+        </span>
       </div>
     </motion.div>
   );

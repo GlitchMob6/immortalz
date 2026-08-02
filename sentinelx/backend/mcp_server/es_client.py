@@ -1,6 +1,7 @@
+import os
 from elasticsearch import Elasticsearch
 
-ES_HOST = "http://localhost:9200"
+ES_HOST = os.getenv("ELASTICSEARCH_URL", "http://localhost:9200")
 INDEX_NAME = "soc-logs"
 
 def get_es_client() -> Elasticsearch:

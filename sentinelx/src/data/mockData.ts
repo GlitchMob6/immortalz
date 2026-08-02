@@ -11,6 +11,10 @@ export const stats = {
 
 export const suggestedPrompts = [
   {
+    icon: 'Shield',
+    text: 'Investigation Report: IP 185.220.101.5',
+  },
+  {
     icon: 'AlertTriangle',
     text: "Investigate today's highest risk incident",
   },

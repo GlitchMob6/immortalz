@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import TopBar from '@/components/layout/TopBar';
 import Greeting from '@/components/landing/Greeting';
 import StatsGrid from '@/components/landing/StatsGrid';
@@ -22,9 +22,13 @@ import ThreatMap from '@/components/investigation/ThreatMap';
 import ThreatPrediction from '@/components/investigation/ThreatPrediction';
 import Recommendations from '@/components/investigation/Recommendations';
 
+// Reports view
+import ExecutiveReport from '@/components/reports/ExecutiveReport';
+import AlertTimeOfDayChart from '@/components/shared/AlertTimeOfDayChart';
+
 import { motion, AnimatePresence } from 'framer-motion';
 
-type View = 'dashboard' | 'investigation';
+type View = 'dashboard' | 'investigation' | 'reports';
 
 export default function HomePage() {
   const [view, setView] = useState<View>('dashboard');
@@ -33,8 +37,18 @@ export default function HomePage() {
 
   // Workspace card visibility state (progressive reveal)
   const [visibleCards, setVisibleCards] = useState(0);
+  const [currentQuery, setCurrentQuery] = useState<string>('');
+  const revealTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // Clear all progressive reveal timers
+  const clearRevealTimers = useCallback(() => {
+    revealTimersRef.current.forEach(clearTimeout);
+    revealTimersRef.current = [];
+  }, []);
 
   const handleInvestigate = useCallback((query: string) => {
+    clearRevealTimers();
+    setCurrentQuery(query);
     setView('investigation');
     setActiveTab('investigations');
     setVisibleCards(0);
@@ -42,14 +56,16 @@ export default function HomePage() {
     // Progressively reveal investigation cards
     const delays = [800, 1800, 2800, 3600, 4400, 5200, 6000, 6800];
     delays.forEach((delay, i) => {
-      setTimeout(() => setVisibleCards((prev) => Math.max(prev, i + 1)), delay);
+      const timer = setTimeout(() => setVisibleCards((prev) => Math.max(prev, i + 1)), delay);
+      revealTimersRef.current.push(timer);
     });
-  }, []);
+  }, [clearRevealTimers]);
 
   const handleBackToDashboard = useCallback(() => {
+    clearRevealTimers();
     setView('dashboard');
     setActiveTab('dashboard');
-  }, []);
+  }, [clearRevealTimers]);
 
   // Ctrl+K handler
   useEffect(() => {
@@ -69,7 +85,16 @@ export default function HomePage() {
         activeTab={activeTab}
         onTabChange={(tab) => {
           setActiveTab(tab);
-          if (tab === 'dashboard') handleBackToDashboard();
+          if (tab === 'dashboard') {
+            handleBackToDashboard();
+          } else if (tab === 'investigations') {
+            clearRevealTimers();
+            setView('investigation');
+            setVisibleCards(8);
+          } else if (tab === 'reports') {
+            clearRevealTimers();
+            setView('reports');
+          }
         }}
         onCommandPalette={() => setCommandPaletteOpen(true)}
       />
@@ -78,14 +103,14 @@ export default function HomePage() {
         isOpen={commandPaletteOpen}
         onClose={() => setCommandPaletteOpen(false)}
         onAction={(id) => {
-          if (id === 'new') handleInvestigate("Investigate today's highest risk incident");
+          if (id === 'new') handleInvestigate("Investigate today's highest risk incident across SOC logs");
         }}
       />
 
       <div className="flex-1 flex overflow-hidden">
         {/* LEFT — Investigation Log */}
         <aside className="w-[360px] border-r border-border-default bg-surface flex-shrink-0 overflow-hidden flex flex-col">
-          <InvestigationLog onNewQuery={handleInvestigate} />
+          <InvestigationLog onNewQuery={handleInvestigate} currentQuery={currentQuery || undefined} />
         </aside>
 
         {/* CENTER — Main Content Area */}
@@ -106,6 +131,18 @@ export default function HomePage() {
                 <InvestigationInput onSubmit={handleInvestigate} variant="landing" />
                 <SuggestedPrompts onSelect={handleInvestigate} />
                 <RecentInvestigations />
+              </motion.div>
+            ) : view === 'reports' ? (
+              /* ═══════ EXECUTIVE SOC REPORT ═══════ */
+              <motion.div
+                key="reports"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="pb-16"
+              >
+                <ExecutiveReport />
               </motion.div>
             ) : (
               /* ═══════ INVESTIGATION WORKSPACE ═══════ */
@@ -131,6 +168,7 @@ export default function HomePage() {
                         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                       >
                         <IncidentSummary />
+                        <AlertTimeOfDayChart />
                       </motion.div>
                     )}
 
